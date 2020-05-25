@@ -60,7 +60,7 @@ Wektor <TYP,ROZMIAR> Wektor <TYP,ROZMIAR>::operator- (const Wektor <TYP,ROZMIAR>
     return Wynik;
 }
 
-template<class TYP, int ROZMIAR>
+template <class TYP, int ROZMIAR>
 TYP Wektor <TYP,ROZMIAR>::operator* (const Wektor <TYP,ROZMIAR> & W2) const
 {
     TYP Wynik;
@@ -142,7 +142,17 @@ template <> double Wektor<LZespolona,3>::dlugosc() const
     return dlugosc;
 }
 
-// dlugosc 5 zrobic
+template <> double Wektor<LZespolona,5>::dlugosc() const
+{
+    double dlugosc = 0;
+    for (int i=0;i<5;i++)
+    {
+        LZespolona LZ = tab[i] * sprzezenie(tab[i]);
+        dlugosc += tab[i].re;
+    }
+    dlugosc = sqrt(dlugosc);
+    return dlugosc;
+}
 
 template<> Wektor <LZespolona,3> Wektor <LZespolona,3>::operator/(LZespolona l2) const
 {

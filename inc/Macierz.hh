@@ -1,42 +1,32 @@
 #ifndef MACIERZ_HH
 #define MACIERZ_HH
-#include "Wektor.hh"
-#include "rozmiar.h"
+
 #include <iostream>
+#include "Wektor.hh"
 
-class Macierz {
+template <class TYP, int ROZMIAR>
+class Macierz
+{
+    Wektor <TYP,ROZMIAR> tab[ROZMIAR];
+    public:
 
-    Wektor tabM[ROZMIAR];
-
-  public:
-
-    Macierz(Wektor A, Wektor B, Wektor C);
     Macierz();
-
-    Wektor  operator *(const Wektor & B) const;
-    double wyznacznik(); //Sarrus
-    Macierz transponuj() const;
-
-    Wektor & operator [](int index); // W[2][0] - zerowy element drugiego wektora
- //   double & operator () (int ind1, int ind2); // M(2,0)
-
-    Macierz  operator + (Macierz & B) const;
-    Macierz  operator - (Macierz & B) const;
-    Macierz  operator * (Macierz & B) const;
-    Macierz  operator * (double B) const;
-
-    bool operator == (Macierz & M2) const;
-    bool operator != (Macierz & M2) const;
-
-
-  //  Macierz odwroc() const;
-
-
+    Wektor <TYP,ROZMIAR> & operator [] (int index);
+    const Wektor<TYP,ROZMIAR> & operator [] (int index) const;
+    Macierz <TYP,ROZMIAR> operator + (Macierz <TYP,ROZMIAR> M2) const;
+    Macierz <TYP,ROZMIAR> operator - (Macierz <TYP,ROZMIAR> M2) const;
+    Wektor <TYP,ROZMIAR> operator * (const Wektor <TYP,ROZMIAR>  & W2) const;
+    Macierz <TYP,ROZMIAR> operator * (Macierz <TYP,ROZMIAR>  M2) const ;
+    Macierz <TYP,ROZMIAR> operator * (double L2) const; 
+    Macierz <TYP,ROZMIAR> transponuj() const;
+    TYP wyznacznik() const;
+    bool operator == (const Macierz <TYP,ROZMIAR> & M2) const;
+    bool operator != (const Macierz <TYP,ROZMIAR> & M2) const;
 };
 
-std::istream& operator >> (std::istream &strm, Macierz &Mac);
-
-std::ostream& operator << (std::ostream &strm, const Macierz &Mac);
-
+template <class TYP, int ROZMIAR>
+std::ostream& operator << (std::ostream &Strm, const  Macierz <TYP,ROZMIAR> &Mac);
+template <class TYP, int ROZMIAR>
+std::istream& operator >> (std::istream &Strm, Macierz <TYP,ROZMIAR> &Mac);
 
 #endif

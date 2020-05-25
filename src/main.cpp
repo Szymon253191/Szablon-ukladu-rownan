@@ -1,27 +1,37 @@
 #include <iostream>
 #include "Wektor.hh"
+#include "LZespolona.hh"
 #include "Macierz.hh"
 #include "UkladRownanLiniowych.hh"
-
-
-
 using namespace std;
 
-/*
- * Tu definiujemy pozostale funkcje.
- * Lepiej jednak stworzyc dodatkowy modul
- * i tam je umiescic. Ten przyklad pokazuje
- * jedynie absolutne minimum.
- */
+
+
 
 
 int main()
-{
-  UkladRownanLiniowych   UklRown;   // To tylko przykladowe definicje zmiennej
+{  
 
+    UkladRownanLiniowych <double,5> UklR;
+    UkladRownanLiniowych <LZespolona,5> UklZ;
+    char typ;
 
-  cout << endl << " Start programu " << endl << endl << " Wprowadz uklad rownan: " << endl << endl;
-  cin >> UklRown;
-  Wektor W = UklRown.rozwiaz();
-  cout << W;
+    cin>>typ;
+    if(typ!='r' && typ!='z')
+    {
+        cerr<<"Wprowadz poprawny typ zmiennych"<<endl;
+        exit(1);
+    }
+    if(typ=='r') 
+    {
+        cin>>UklR;
+    }
+    else cin>>UklZ;
+    if(typ=='r') 
+    {
+        cout<<UklR.rozwiaz(UklR)<<endl;
+    }
+    else cout<<UklZ.rozwiaz(UklZ)<<endl;
+
+    return 0;
 }

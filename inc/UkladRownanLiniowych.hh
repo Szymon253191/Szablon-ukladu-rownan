@@ -1,31 +1,31 @@
 #ifndef UKLADROWNANLINIOWYCH_HH
 #define UKLADROWNANLINIOWYCH_HH
-#include "Macierz.hh"
+
 #include <iostream>
-#include "rozmiar.h"
-class UkladRownanLiniowych {
+#include "Wektor.hh"
+#include "Macierz.hh"
 
-    Macierz A; // Ax = b
-    Wektor b;
+template <class TYP,int ROZMIAR>
+class UkladRownanLiniowych 
+{   
+Macierz <TYP,ROZMIAR> A;
+Wektor <TYP,ROZMIAR> B;
+public:
 
-  public:
-
-    Wektor & rozwiaz();
-    UkladRownanLiniowych(){};
-    UkladRownanLiniowych(const Macierz & M, const Wektor & W);
-    UkladRownanLiniowych(Macierz _A, Wektor _b): A(_A), b(_b){};
-    Wektor & Zwroc_wektor_wolny();
-    void Zmien_wektor_wolny(const Wektor & W);
-    Macierz & Zwroc_macierz();
-    void Zmien_macierz(const Macierz & M);
+UkladRownanLiniowych() {}
+UkladRownanLiniowych(Macierz <TYP,ROZMIAR> _A ,Wektor <TYP,ROZMIAR> _B) : A(_A), B(_B) {};
+const Macierz <TYP,ROZMIAR> & get_A() const ;
+const Wektor <TYP,ROZMIAR> & get_B() const ;
+void set_A(Macierz <TYP,ROZMIAR> & N) ;
+void set_B(Wektor <TYP,ROZMIAR> & N) ;
+const Macierz <TYP,ROZMIAR> zamien(int i, Macierz <TYP,ROZMIAR> A, Wektor <TYP,ROZMIAR> B) const ;
+const Wektor <TYP,ROZMIAR> rozwiaz(UkladRownanLiniowych <TYP,ROZMIAR> Ukl) const ; 
 };
 
-
-std::istream& operator >> (std::istream &Strm, UkladRownanLiniowych &UklRown);
-
-std::ostream& operator << ( std::ostream                  &Strm,
-                            UkladRownanLiniowych    &UklRown
-                          );
+template <class TYP, int ROZMIAR>
+std::istream& operator >> (std::istream &Strm, UkladRownanLiniowych<TYP, ROZMIAR> &UklRown);
+template <class TYP, int ROZMIAR>
+std::ostream& operator << ( std::ostream &Strm, const UkladRownanLiniowych<TYP, ROZMIAR> &UklRown);
 
 
 #endif

@@ -1,73 +1,93 @@
 #include "UkladRownanLiniowych.hh"
+#include "LZespolona.hh"
+#include <iostream>
+#include <cmath>
+using namespace std;
 
-UkladRownanLiniowych::UkladRownanLiniowych(const Macierz & M, const Wektor & W)
+template<class TYP, int ROZMIAR>
+const Macierz<TYP,ROZMIAR> & UkladRownanLiniowych<TYP,ROZMIAR>::get_A() const 
 {
-    A = M;
-    b = W;
+  return A;
 }
 
-Wektor & UkladRownanLiniowych::rozwiaz() 
+template<class TYP, int ROZMIAR>
+const Wektor<TYP,ROZMIAR> & UkladRownanLiniowych<TYP,ROZMIAR>::get_B() const
 {
-    Wektor Wy;
-    Macierz M = A;
-    Wektor W(b);
-    double Wyzn = M.wyznacznik();
-
-    if ((Wyzn = 0))
-    {
-        std::cerr<<"Blad, wyznacznik = 0";
-        exit(1);
-    }
-    else
-    {
-        for (int i=0; i<ROZMIAR; i++)
-        {
-            M[i] = W;
-            Wy[i] = M.wyznacznik();
-            M[i] = A[i];
-        }
-        for (int i=0; i<ROZMIAR; i++)
-        {
-            Wy[i] = Wy[i] / Wyzn;
-        }
-    }
-    return Wy;
+  return B;
 }
 
-Wektor & UkladRownanLiniowych::Zwroc_wektor_wolny()
+template<class TYP, int ROZMIAR>
+void UkladRownanLiniowych<TYP,ROZMIAR>::set_A(Macierz<TYP,ROZMIAR> & N) 
 {
-    return b;
+  A=N;
 }
 
-void UkladRownanLiniowych::Zmien_wektor_wolny(const Wektor & W)
+template<class TYP, int ROZMIAR>
+void UkladRownanLiniowych<TYP,ROZMIAR>::set_B(Wektor<TYP,ROZMIAR> & N) 
 {
-    b = W;
+  B=N;
 }
 
-Macierz & UkladRownanLiniowych::Zwroc_macierz()
+template<class TYP, int ROZMIAR>
+const Macierz<TYP,ROZMIAR> UkladRownanLiniowych<TYP,ROZMIAR>::zamien(int i, Macierz<TYP,ROZMIAR> A, Wektor<TYP,ROZMIAR> B) const
 {
-    return A;
+  A=A.transponuj();
+  A[i]=B;
+  A=A.transponuj();
+  return A;
 }
 
-void UkladRownanLiniowych::Zmien_macierz(const Macierz & M)
+template<class TYP, int ROZMIAR>
+const Wektor<TYP,ROZMIAR> UkladRownanLiniowych<TYP,ROZMIAR>::rozwiaz(UkladRownanLiniowych<TYP,ROZMIAR> UklRown) const
 {
-    A = M;
+  Wektor<TYP,ROZMIAR> Wynik;
+  int ilosc_zer=0;
+  TYP wyzn;
+  int i;
+  wyzn=A.wyznacznik();
+  for(i=0;i<ROZMIAR;i++)
+  {                 
+    Wynik[i]=zamien(i,A,B).wyznacznik();
+    if(Wynik[i]==0.0) 
+    ilosc_zer++;
+  }
+  if(wyzn==0 && ilosc_zer==ROZMIAR)
+  {
+    cout <<"Nieskonczenie wiele rozwiazan \n";   
+    exit(0);
+  }
+  if(wyzn==0 && ilosc_zer!=ROZMIAR)
+  {
+    cout <<"Brak rozwiazan \n"; 
+    exit(0);  
+  }
+  for(i=0;i<ROZMIAR;i++)
+  {
+    Wynik[i] = Wynik[i] / wyzn;
+  }
+  return Wynik;  
 }
 
-std::istream& operator >> (std::istream &Strm, UkladRownanLiniowych &UklRown)
+template<class TYP, int SWymiar>
+std::istream& operator >> (std::istream &Strm, UkladRownanLiniowych<TYP,SWymiar> &UklRown)
 {
-    Macierz M;
-    Wektor W;
-    Strm >> M >> W;
-    UklRown.Zmien_macierz(M);
-    UklRown.Zmien_wektor_wolny(W);
-    return Strm;
+  Macierz<TYP,ROZMIAR> A;
+  Wektor<TYP,ROZMIAR> B;
+  Strm >> A >> B;
+  A=A.transpozycja(); 
+  UklRown.set_A(A);
+  UklRown.set_B(B);
+  return Strm;
 }
 
-std::ostream& operator << ( std::ostream                  &Strm,
-                            UkladRownanLiniowych    &UklRown
-                          )
+template<class TYP, int ROZMIAR>
+std::ostream& operator << (std::ostream &Strm, const UkladRownanLiniowych<TYP,ROZMIAR> &UklRown)
 {
-    Strm << "Macierz A: " << UklRown.Zwroc_macierz().transponuj() << "Wektor B: " << UklRown.Zwroc_wektor_wolny() << endl;
-    return Strm;
+  Macierz<TYP,ROZMIAR> A = UklRown.get_A();
+  Wektor<TYP,ROZMIAR> B = UklRown.get_B();
+  for(int i=0;i<ROZMIAR;i++)
+  {
+    Strm<<A[i]<<"["<<B[i]<<"]"<<endl;
+  }
+return Strm;
 }

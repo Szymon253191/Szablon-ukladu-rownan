@@ -1,175 +1,192 @@
 #include "Macierz.hh"
-#include <algorithm>
+#include "Wektor.hh"
+#include "LZespolona.hh"
 
-Macierz::Macierz(Wektor A, Wektor B, Wektor C)
-{
-    tabM[0] = A;
-    tabM[1] = B;
-    tabM[2] = C;
-}
+using namespace std;
 
-Macierz::Macierz()
+template <class TYP, int ROZMIAR>  
+Macierz <TYP,ROZMIAR>::Macierz()
 {
-    Wektor W; // (0,0,0)
-    for(int i=0; i<ROZMIAR; i++)
+    Wektor <TYP,ROZMIAR> W;    
+    for (int i;i<ROZMIAR;i++)
     {
-        tabM[i]=W;
+      tab[i] = W;
     }
 }
 
-Wektor  Macierz::operator *(const Wektor & B) const
- {
-    Wektor W;
-    for (int i=0; i<ROZMIAR; i++)
+template <class TYP, int ROZMIAR>
+Wektor <TYP,ROZMIAR> & Macierz <TYP,ROZMIAR>::operator [] (int index) 
+{
+    if (index < 0 || index >= ROZMIAR) 
     {
-        W[i] = 0;
+        cerr << "Poza zakresem";
+        exit(1);      
     }
-    for (int i=0; i<ROZMIAR; i++)
+    return tab[index];
+}
+template <class TYP, int ROZMIAR>
+const Wektor <TYP,ROZMIAR> & Macierz <TYP,ROZMIAR>::operator [] (int index) const
+{
+    if (index < 0 || index >= ROZMIAR) 
     {
-        for (int j=0; j<ROZMIAR; j++)
-        {
-            W[i] += tabM[i][j] * B[j];
-        }
+        cerr << "Poza zakresem";
+        exit(1);      
+    }
+    return tab[index];
+}
+
+template <class TYP, int ROZMIAR>
+ Macierz <TYP,ROZMIAR> Macierz <TYP,ROZMIAR>::operator + (Macierz <TYP,ROZMIAR> M2) const 
+{
+    Macierz <TYP,ROZMIAR> M;
+    for (int i=0;i<ROZMIAR;i++)
+    {
+        M[i] = tab[i] + M2[i];
+    }
+    return M;
+}
+template <class TYP, int ROZMIAR>
+ Macierz <TYP,ROZMIAR> Macierz <TYP,ROZMIAR>::operator - (Macierz <TYP,ROZMIAR>  M2) const  
+{
+    Macierz <TYP,ROZMIAR> M;
+    for (int i=0;i<ROZMIAR;i++)
+    {
+        M[i] = tab[i] - M2[i];
+    }
+    return M;
+}
+
+template <class TYP, int ROZMIAR>
+Macierz <TYP,ROZMIAR> Macierz <TYP,ROZMIAR>::operator * (double L2) const
+{
+    Macierz <TYP,ROZMIAR> M;
+    for (int i=0;i<ROZMIAR;i++)
+    {
+        M[i] = tab1[i] * L2;
+    }
+    return M;
+}
+
+template <class TYP, int ROZMIAR>
+Wektor <TYP,ROZMIAR> Macierz <TYP,ROZMIAR>::operator * (const Wektor <TYP,ROZMIAR> & W2) const
+{
+    Wektor <TYP,ROZMIAR> W;
+    for(int i=0;i<=2;i++)
+    {
+        W[i] = tab[i] * W2;
     }
     return W;
- }
-
-double wyznacznik() //Sarrus
-{
-    double wynik;
-    wynik = ((tabM[0][0]*tabM[1][1]*tabM[2][2]) + (tabM[0][1]*tabM[1][2]*tabM[2][0]) + (tabM[0][2]*tabM[1][0]*tabM[2][1]) - (tabM[0][2]*tabM[1][1]*tabM[2][0]) - (tabM[0][1]*tabM[1][0]*tabM[2][2]) - (tabM[0][0]*tabM[1][2]*tabM[2][1]));
-    return wynik;
 }
 
-Macierz Macierz::transponuj() const
+template <class TYP, int ROZMIAR>
+Macierz <TYP,ROZMIAR> Macierz <TYP,ROZMIAR>::operator * (Macierz <TYP,ROZMIAR> M2) const
 {
-    Macierz M;
-    for (int i=0; i<ROZMIAR; i++)
+    Macierz <TYP,ROZMIAR> M;
+    Macierz <TYP,ROZMIAR> MW;
+    for (int i=0;i<ROZMIAR;i++)
     {
-        for (int j=0; i<ROZMIAR; j++)
+        for (int j=0;j<ROZMIAR;j++)
         {
-            M[i][j] = tabM[j][i];
+            M[i][j] = tab[i][j];
+        }
+    }
+    M = M.transponuj();
+    for(int i=0;i<ROZMIAR;i++)
+        {
+            for (int j=0;j<ROZMIAR;j++)
+            {
+                MW[j][i] = M2[j] * M[i];
+            }
+        }
+    return MW;              
+}
+
+template <class TYP, int ROZMIAR>
+Macierz <TYP,ROZMIAR> Macierz <TYP,ROZMIAR>::transponuj() const
+{
+    Macierz <TYP,ROZMIAR> M;
+    for(int i=0;i<ROZMIAR;i++)
+    {
+        for(int j=0;j<ROZMIAR;j++)
+        {
+            M[i][j] = tab[j][i];
         }
     }
     return M;
 }
 
-Wektor & Macierz::operator [](int index)
-{
-    if(index < 0 || index > 3)
-    {
-        std::cerr<<"Poza zakresem"<<endl;
-        exit (1);
-    }
-    else return tabM[index];
-}
 
-/*double & Macierz::operator () (int ind1, int ind2) //w sumie nie uzywana
+template <class TYP, int ROZMIAR>
+TYP Macierz <TYP,ROZMIAR>::wyznacznik() const
 {
-    if(ind1 < 0 || ind1 > ROZMIAR || ind2 < 0 || ind2 > ROZMIAR)
+    Macierz <TYP, ROZMIAR> M = *this;
+     for(int i=0;i<ROZMIAR;i++)
     {
-        std::cerr<<"Poza zakresem"<<endl;
-        exit (1);
-    }
-    else return tabM[ind1][ind2];
-}
-*/
-Macierz  Macierz::operator + (Macierz & B) const
-{
-    Macierz M;
-    for (int i=0; i<ROZMIAR; i++)
-    {
-        M[i] = tabM[i] + B[i];
-    }
-    return M;
-}
-
-Macierz  Macierz::operator - (Macierz & B) const
-{
-    Macierz M;
-    for (int i=0; i<ROZMIAR; i++)
-    {
-        M[i] = tabM[i] - B[i];
-    }
-    return M;
-}
-
-Macierz  Macierz::operator * (Macierz & B) const
-{
-    Macierz M;
-    for (int i=0; i<ROZMIAR; i++)
-    {
-        M[i] = tabM[i];
-    }
-    B = M.transponuj();
-    for (int i=0; i<ROZMIAR; i++)
-    {
-        for (int j=0; j<ROZMIAR; j++)
+        for(int j=0;j<ROZMIAR;j++)
         {
-            M[i][j] = tabM[i] * B[j];
+            M[i][j] = tab[i][j];
         }
     }
-    return M;
-}
+    TYP Wynik = M[0][0];
 
-Macierz  Macierz::operator * (double B) const
-{
-    Macierz M;
-    for (int i=0; i<ROZMIAR; i++)
+    for(int i=0;i<ROZMIAR-1;i++)
     {
-        M[i] = tabM[i] * B;
+        for(int j=0;j<ROZMIAR-(i+1);j++)
+        {
+            M[i+j+1] -= M[i] * (M[i+j+1][i] / M[i][i]);
+        }
     }
-    return M;
+
+    for(int i = 1; i < ROZMIAR; i++)
+    { 
+        Wynik *= M[i][i]; 
+    }
+
+    return Wynik;
 }
 
-bool Macierz::operator == (Macierz & M2) const
+template <class TYP, int ROZMIAR>
+bool Macierz <TYP,ROZMIAR>::operator == (const Macierz <TYP,ROZMIAR> & M2) const
 {
     for(int i=0;i<ROZMIAR;i++)
     {
-        if(tabM[i]!=M2[i]) 
+        if (M2[i] != tab1[i])
         {
             return false;
         }
     }
     return true;
-    
 }
 
-bool Macierz::operator != (Macierz & M2) const
+template <class TYP, int ROZMIAR>
+bool Macierz <TYP,ROZMIAR>::operator != (const Macierz <TYP,ROZMIAR> & M2) const
 {
-    double epsilon = 0.000001;
-    for (int i=0; i<ROZMIAR; i++)
+    for(int i=0;i<ROZMIAR;i++)
     {
-        if (!abs((tabM[i]-M2[i]) > epsilon))
+        if (M2[i] == tab1[i])
         {
             return false;
         }
-        else return true;
     }
-}
-/*Macierz & Macierz::odwroc() const
-{
-    Macierz M;
-    double Wyz =
-}
-*/
-std::istream& operator >> (std::istream &strm, Macierz &Mac)
-{
-    for (int i=0; i<ROZMIAR; i++)
-    {
-       std::cin >> Mac[i];
-    }
-    return strm;
+    return true;
 }
 
-std::ostream& operator << (std::ostream &strm, const Macierz &Mac)
+template <class TYP, int ROZMIAR>
+std::istream& operator >> (std::istream &Strm, Macierz <TYP,ROZMIAR> &Mac)
 {
-    for (int i=0; i<ROZMIAR; i++)
+    for(int i=0;i<ROZMIAR;i++)
     {
-        for (int j=0; j<ROZMIAR; j++)
-        {
-            strm << Mac.transponuj[i][j] <<" ";
-        }
+        Strm >> Mac[i];
     }
-    return strm;
+    return Strm;
+} 
+
+template <class TYP, int ROZMIAR>
+std::ostream& operator << (std::ostream &Strm, const Macierz <TYP,ROZMIAR> &Mac)
+{
+    for(int i=0;i<ROZMIAR;i++)
+    {
+        Strm << Mac[i];
+    }
+    return Strm;
 }
